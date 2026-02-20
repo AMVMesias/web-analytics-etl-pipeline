@@ -1,0 +1,36 @@
+# Data files
+*.csv
+!sample_data.csv
+*.json
+
+# Generated output
+output/
+*.html
+*.png
+*.log
+*.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# Tools
+get-pip.py
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Temp folders
+Nueva carpeta/
+Nuevo/
+PowerBI/
