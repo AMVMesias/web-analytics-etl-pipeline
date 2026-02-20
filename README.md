@@ -41,13 +41,8 @@ CSV Crudo (7 GB+)        CSV Limpio y Expandido          Dashboard PowerBI
 ```
 web-analytics-etl-pipeline/
 │
-├── main.py               # ETL principal: expansión JSON + procesamiento por lotes
-├── finalcsv.py            # ETL avanzado: detección de outliers + reportes HTML
-├── limpiezaFinal.py       # Motor de limpieza (OOP, monitoreo de memoria)
-├── boxplot.py             # Análisis estadístico y gráficos comparativos
-├── verhits.py             # Análisis de distribución de hits por fila
-├── verfilas.py            # Inspección de datos a nivel de fila
-├── vertablas.py           # Análisis de estructura de tablas
+├── finalcsv.py            # Paso 1: Expansión JSON + detección de outliers + reporte HTML
+├── limpiezaFinal.py       # Paso 2: Limpieza y normalización del CSV expandido
 │
 ├── sample_data.csv        # Muestra de entrada (5 filas de referencia)
 ├── requirements.txt       # Dependencias Python
@@ -57,37 +52,23 @@ web-analytics-etl-pipeline/
 
 ## ⚙️ Componentes del Pipeline
 
-### 1. `main.py` — Motor ETL Principal
+### Paso 1: `finalcsv.py` — Expansión JSON
 - Lee el CSV en lotes configurables (por defecto: 1,000 filas)
 - Detecta y normaliza columnas JSON (maneja comillas simples/dobles)
 - Expande arrays de hits de longitud variable en columnas planas (`hit_1_page`, `hit_2_page`, ...)
-- Rastrea el máximo de hits en todo el dataset
+- **Detección de outliers**: Separa filas con conteos de hits anormalmente altos en un archivo aparte
+- **Reporte HTML**: Visualización interactiva de la distribución de hits
+- **Output:** `visitas_expandidas_completo.csv` + `visitas_muchos_hits.csv` + reporte HTML
 
-### 2. `finalcsv.py` — Procesamiento Avanzado
-- **Detección de outliers**: Identifica filas con conteos de hits anormalmente altos
-- **Archivos de salida separados**: Datos normales vs. outliers
-- **Reportes HTML**: Visualizaciones interactivas de distribución de hits
-
-### 3. `limpiezaFinal.py` — Motor de Limpieza
-Sistema de limpieza con diseño OOP:
+### Paso 2: `limpiezaFinal.py` — Limpieza de Datos
+Lee el CSV expandido del Paso 1 y aplica limpieza profunda:
 - **Clase `EstadisticasLimpieza`**: Rastreo de todas las métricas
 - **Monitoreo de memoria**: Uso de RAM en tiempo real con `psutil`
 - **Corrección de formatos de fecha**: Maneja múltiples formatos
 - **Normalización de texto**: Limpieza de whitespace y encoding
 - **Generación de reportes**: JSON + texto formateado
 - **Procesamiento resiliente**: Fallback línea por línea para CSVs malformados
-
-### 4. `boxplot.py` — Análisis Estadístico
-- Genera boxplots de distribución de hits
-- Compara estadísticas antes/después de limpieza
-- Trabaja con datos muestreados para archivos grandes
-
-### 5. Utilidades de Análisis
-| Script | Propósito |
-|--------|-----------|
-| `verhits.py` | Analiza distribución de hits en todas las filas |
-| `verfilas.py` | Inspecciona filas individuales con pretty-printing JSON |
-| `vertablas.py` | Muestra estructura, tipos de columna y valores de ejemplo |
+- **Output:** `visitas_expandidas_completo_limpio.csv` (listo para Power BI)
 
 ## 🔧 Uso
 
@@ -100,13 +81,10 @@ pip install -r requirements.txt
 ### Ejecutar el Pipeline
 
 ```bash
-# Expansión JSON básica
-python main.py
-
-# Procesamiento avanzado con detección de outliers
+# Paso 1: Expansión JSON (genera visitas_expandidas_completo.csv)
 python finalcsv.py
 
-# Limpieza de datos
+# Paso 2: Limpieza de datos (genera visitas_expandidas_completo_limpio.csv)
 python limpiezaFinal.py
 ```
 
